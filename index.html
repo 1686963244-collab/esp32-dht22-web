@@ -1,67 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>ESP32 Live Dashboard</title>
+  <meta charset="UTF-8">
+  <title>ESP32 Environment Monitor</title>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-<style>
-body{
-  font-family: Arial;
-  text-align: center;
-  background: #0f2027;
-  color: white;
-}
-.card{
-  background:#203a43;
-  padding:30px;
-  margin:20px;
-  border-radius:20px;
-  display:inline-block;
-  width:220px;
-}
-.value{
-  font-size:50px;
-  margin-top:10px;
-}
-</style>
+  <style>
+    body{
+      background:#0f172a;
+      color:white;
+      font-family:Arial;
+      text-align:center;
+      margin-top:80px;
+    }
+    .card{
+      display:inline-block;
+      background:#1e293b;
+      padding:40px;
+      border-radius:20px;
+      margin:20px;
+      width:250px;
+      box-shadow:0 0 20px rgba(0,0,0,0.3);
+    }
+    .value{
+      font-size:50px;
+      margin-top:20px;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>🌍 ESP32 Real-Time Monitor</h1>
+<h1>🌍 ESP32 Remote Dashboard</h1>
 
 <div class="card">
-<h2>🌡 Temperature</h2>
-<div id="temp" class="value">--</div>
+  <h2>🌡 Temperature</h2>
+  <div id="temp" class="value">-- °C</div>
 </div>
 
 <div class="card">
-<h2>💧 Humidity</h2>
-<div id="hum" class="value">--</div>
+  <h2>💧 Humidity</h2>
+  <div id="hum" class="value">-- %</div>
 </div>
 
 <script>
+  // ⭐ 你的 Firebase 配置
+  const firebaseConfig = {
+    databaseURL: "https://esp32-dht22-afccc-default-rtdb.asia-southeast1.firebasedatabase.app/"
+  };
 
-// 🔥你的Firebase地址
-const firebaseConfig = {
-  databaseURL: "https://esp32-dht22-afccc-default-rtdb.asia-southeast1.firebasedatabase.app/"
-};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  // ⭐ 实时监听温度
+  db.ref("sensor/temperature").on("value", snapshot => {
+    document.getElementById("temp").innerHTML = snapshot.val() + " °C";
+  });
 
-// ✅实时监听温度
-db.ref("sensor/temperature").on("value", (snap) => {
-  document.getElementById("temp").innerHTML = snap.val() + " °C";
-});
-
-// ✅实时监听湿度
-db.ref("sensor/humidity").on("value", (snap) => {
-  document.getElementById("hum").innerHTML = snap.val() + " %";
-});
-
+  // ⭐ 实时监听湿度
+  db.ref("sensor/humidity").on("value", snapshot => {
+    document.getElementById("hum").innerHTML = snapshot.val() + " %";
+  });
 </script>
 
 </body>
