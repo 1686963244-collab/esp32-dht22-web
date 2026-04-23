@@ -1,74 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP32 Smart Farm</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-<style>
-body{
-    font-family: Inter, sans-serif;
-    background:#f5f5f7;
-    text-align:center;
-    padding-top:60px;
-}
-.card{
-    width:320px;
-    margin:auto;
-    background:white;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-}
-.value{
-    font-size:42px;
-    font-weight:300;
-    margin:20px 0;
-}
-.small{ color:#888; }
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding-top: 60px;
+    }
+    .card {
+      display: inline-block;
+      background: #1e293b;
+      padding: 40px;
+      border-radius: 20px;
+      margin: 20px;
+      width: 260px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    .value {
+      font-size: 48px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
-
 <body>
+  <h1>🌍 ESP32 Remote Dashboard</h1>
 
-<div class="card">
-    <h2>🌱 ESP32 Smart Detector</h2>
-
-    <div class="small">Temperature</div>
+  <div class="card">
+    <h2>🌡 Temperature</h2>
     <div id="temp" class="value">-- °C</div>
+  </div>
 
-    <div class="small">Humidity</div>
+  <div class="card">
+    <h2>💧 Humidity</h2>
     <div id="hum" class="value">-- %</div>
-</div>
+  </div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://esp32-dht22-afccc-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
 
-<script>
-// ⭐你的 Firebase 配置
-const firebaseConfig = {
-  apiKey: "5UqhvgF4Ncb21mSK8SFmfcSlv5rHCVDkthGEcCOs",
-  databaseURL: "https://esp32-dht22-afccc-default-rtdb.asia-southeast1.firebasedatabase.app/"
-};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    db.ref("sensor").on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
 
-// 🌡️ 实时读取温度
-db.ref("/sensor/temperature").on("value", (snapshot) => {
-  const temp = snapshot.val();
-  document.getElementById("temp").innerHTML = temp + " °C";
-});
+      document.getElementById("temp").innerHTML =
+        (data.temperature ?? "--") + " °C";
 
-// 💧 实时读取湿度
-db.ref("/sensor/humidity").on("value", (snapshot) => {
-  const hum = snapshot.val();
-  document.getElementById("hum").innerHTML = hum + " %";
-});
-</script>
-
+      document.getElementById("hum").innerHTML =
+        (data.humidity ?? "--") + " %";
+    });
+  </script>
 </body>
 </html>
